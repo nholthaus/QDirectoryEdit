@@ -4,6 +4,7 @@
 
 #include "QDirectoryEdit.h"
 
+#include <QComboBox>
 #include <QLineEdit>
 #include <QLabel>
 #include <QPushButton>
@@ -28,14 +29,14 @@ public:
 		, label(new QLabel)
 		, browseButton(new QPushButton)
 		, fileSystemModel(new QFileSystemModel)
-		, edit(new QLineEdit)
+		, edit(new QComboBox)
 		, completionTimer(new QTimer)
 	{
 		layout->addWidget(label);
 		layout->addWidget(edit);
 		layout->addWidget(browseButton);
 
-		edit->setPlaceholderText("Directory Path...");
+/*		edit->setPlaceholderText("Directory Path...");*/
 		browseButton->setText("Browse...");
 
 		label->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
@@ -52,6 +53,7 @@ public:
 		fileSystemModel->setFilter(QDir::AllDirs | QDir::NoDotAndDotDot);
 
 		// path line edit
+		edit->setEditable(true);
 		edit->setCompleter(fileSystemCompleter);
 
 		completionTimer->setSingleShot(true);
@@ -71,7 +73,7 @@ public:
 	QLabel*				label;
 	QPushButton*		browseButton;
 	QFileSystemModel*	fileSystemModel;
-	QLineEdit*			edit;
+	QComboBox*			edit;
 	QTimer*				completionTimer;
 
 #ifdef WIN32
@@ -94,19 +96,19 @@ QDirectoryEdit::QDirectoryEdit(QWidget* parent /*= nullptr*/)
 
 	auto complete = [=]()
 	{
-		d->edit->completer()->setCompletionPrefix(d->edit->text());
+		d->edit->completer()->setCompletionPrefix(d->edit->currentText());
 		d->edit->completer()->complete();
 		d->completionTimer->start(10);
 	};
 
 	auto appendSlashes = [=]()
 	{
-		QModelIndex fileSystemIndex = d->fileSystemModel->index(d->edit->text());
+		QModelIndex fileSystemIndex = d->fileSystemModel->index(d->edit->currentText());
 		QModelIndex index = fileSystemIndex;
 
 		if (d->fileSystemModel->isDir(fileSystemIndex) && fileSystemIndex.isValid())
-			if (!d->edit->text().endsWith(d->slash, Qt::CaseInsensitive))
-				d->edit->setText(d->edit->text().append(d->slash));
+			if (!d->edit->currentText().endsWith(d->slash, Qt::CaseInsensitive))
+				d->edit->setCurrentText(d->edit->currentText().append(d->slash));
 
 		complete();
 	};
@@ -120,11 +122,11 @@ QDirectoryEdit::QDirectoryEdit(QWidget* parent /*= nullptr*/)
 		timer->start();
 	});
 
-	connect(d->edit, &QLineEdit::editingFinished, [=]()
+	connect(d->edit, &QComboBox::currentTextChanged, [=]()
 	{
 		if (this->isValid())
 		{
-			emit this->directoryChanged(d->edit->text());
+			emit this->directoryChanged(directoryPath());
 			QPalette palette;
 			palette.setColor(QPalette::Base, Qt::white);
 			d->edit->setPalette(palette);
@@ -137,15 +139,15 @@ QDirectoryEdit::QDirectoryEdit(QWidget* parent /*= nullptr*/)
 		}
 	});
 
-	connect(d->edit, &QLineEdit::textChanged, [=](QString text)
+	connect(d->edit, &QComboBox::currentTextChanged, [=](QString text)
 	{
 		// change to platform-specific slashes
 		if (d->slash == QChar('/'))
-			if (d->edit->text().contains('\\', Qt::CaseInsensitive))
-				d->edit->setText(d->edit->text().replace('\\', d->slash));
+			if (d->edit->currentText().contains('\\', Qt::CaseInsensitive))
+				d->edit->setCurrentText(d->edit->currentText().replace('\\', d->slash));
 		if(d->slash == QChar('\\'))
-			if (d->edit->text().contains('/', Qt::CaseInsensitive))
-				d->edit->setText(d->edit->text().replace('/', d->slash));
+			if (d->edit->currentText().contains('/', Qt::CaseInsensitive))
+				d->edit->setCurrentText(d->edit->currentText().replace('/', d->slash));
 	});
 
 	connect(d->edit->completer(), QOverload<const QString&>::of(&QCompleter::activated), [=](QString text)
@@ -156,18 +158,19 @@ QDirectoryEdit::QDirectoryEdit(QWidget* parent /*= nullptr*/)
 
 	connect(d->browseButton, &QPushButton::clicked, this, [=]()
 	{
-		QString dir = QFileDialog::getExistingDirectory(this, "Choose Directory", d->edit->text());
+		QString dir = QFileDialog::getExistingDirectory(this, "Choose Directory", d->edit->currentText());
 		this->setDirectoryPath(dir);
+		d->edit->addItem(dir);
 	});
 
-	connect(d->completionTimer, &QTimer::timeout, d->edit->completer(), [=]()
+	connect(d->completionTimer, &QTimer::timeout, [=]()
 	{
 		d->edit->completer()->complete();
-	}, Qt::QueuedConnection);
+	});
 
 	// set the root dir to the first available drive (usually c:\)
 	if (!QDir::drives().isEmpty())
-		d->edit->setText(QDir::drives().first().absolutePath());
+		d->edit->setCurrentText(QDir::drives().first().absolutePath());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -184,7 +187,10 @@ QDirectoryEdit::~QDirectoryEdit()
 QString QDirectoryEdit::directoryPath() const noexcept
 {
 	Q_D(const QDirectoryEdit);
-	return d->edit->text().replace('\\','/');
+	auto path = d->edit->currentText();
+	if (!path.endsWith(d->slash))
+		path.append(d->slash);
+	return path.replace('\\','/');
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -193,7 +199,7 @@ QString QDirectoryEdit::directoryPath() const noexcept
 bool QDirectoryEdit::isEmpty() const noexcept
 {
 	Q_D(const QDirectoryEdit);
-	return d->edit->text().isEmpty();
+	return d->edit->currentText().isEmpty();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -203,7 +209,7 @@ bool QDirectoryEdit::isValid() const noexcept
 {
 	Q_D(const QDirectoryEdit);
 
-	QModelIndex fileSystemIndex = d->fileSystemModel->index(d->edit->text());
+	QModelIndex fileSystemIndex = d->fileSystemModel->index(d->edit->currentText());
 	QModelIndex index = fileSystemIndex;
 
 	if (d->fileSystemModel->isDir(fileSystemIndex) && fileSystemIndex.isValid())
@@ -222,6 +228,20 @@ QString QDirectoryEdit::labelText() const noexcept
 }
 
 //--------------------------------------------------------------------------------------------------
+//	previousDirectories (public ) []
+//--------------------------------------------------------------------------------------------------
+QStringList QDirectoryEdit::previousDirectories() const noexcept
+{
+	Q_D(const QDirectoryEdit);
+
+	QStringList sl;
+	for (int i = 0; i < d->edit->count(); ++i)
+		sl << d->edit->itemText(i);
+
+	return sl;
+}
+
+//--------------------------------------------------------------------------------------------------
 //	setDirectoryPath () []
 //--------------------------------------------------------------------------------------------------
 bool QDirectoryEdit::setDirectoryPath(const QString& path) noexcept
@@ -233,10 +253,10 @@ bool QDirectoryEdit::setDirectoryPath(const QString& path) noexcept
 
 	if (d->fileSystemModel->isDir(fileSystemIndex) && fileSystemIndex.isValid())
 	{
-		d->edit->setText(path);
-		if (!d->edit->text().endsWith(d->slash, Qt::CaseInsensitive))
-			d->edit->setText(d->edit->text().append(d->slash));
-		this->update();
+		d->edit->addItem(path);
+		d->edit->setCurrentText(path);
+		if (!d->edit->currentText().endsWith(d->slash, Qt::CaseInsensitive))
+			d->edit->setCurrentText(d->edit->currentText().append(d->slash));
 	}
 	else
 		return false;
@@ -251,5 +271,22 @@ void QDirectoryEdit::setLabelText(const QString& text) noexcept
 {
 	Q_D(QDirectoryEdit);
 	d->label->setText(text);
+}
+
+//--------------------------------------------------------------------------------------------------
+//	setPreviousDirectories (public ) []
+//--------------------------------------------------------------------------------------------------
+void QDirectoryEdit::setPreviousDirectories(const QStringList& directories) noexcept
+{
+	Q_D(QDirectoryEdit);
+
+	for (auto dir : directories)
+	{
+		QModelIndex fileSystemIndex = d->fileSystemModel->index(dir);
+		QModelIndex index = fileSystemIndex;
+
+		if (d->fileSystemModel->isDir(fileSystemIndex) && fileSystemIndex.isValid())
+			d->edit->addItem(dir);
+	}
 }
 

@@ -12,6 +12,7 @@ public:
 		this->setCentralWidget(edit);
 		edit->setLabelText("Directory:");
 		edit->setDirectoryPath("C:/dev");
+		edit->setPreviousDirectories(QStringList() << "C:/dev/bluetooth");
 		connect(edit, &QDirectoryEdit::directoryChanged, [=](const QString& dir)
 		{
 			this->setWindowTitle(dir);

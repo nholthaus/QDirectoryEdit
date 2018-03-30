@@ -52,6 +52,7 @@
 //-------------------------
 
 class QDirectoryEditPrivate;
+class QStringList;
 
 //--------------------------------------------------------------------------------------------------
 //	QDirectoryEdit
@@ -76,8 +77,10 @@ public:
 	bool isEmpty() const noexcept;
 	bool isValid() const noexcept;
 	QString labelText() const noexcept;
+	QStringList previousDirectories() const noexcept;
 	bool setDirectoryPath(const QString& path) noexcept;
 	void setLabelText(const QString& text) noexcept;
+	void setPreviousDirectories(const QStringList& directories) noexcept;
 	
 private:
 
