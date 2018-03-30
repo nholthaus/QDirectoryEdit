@@ -2,12 +2,14 @@
 #	CMAKE SETTINGS
 #-------------------------------------------------------------------------------
 
-cmake_minimum_required(VERSION 2.8.12)
+cmake_minimum_required(VERSION 3.9.1)
 set(QT_MINIMUM_VERSION 5.9.0)
 
 #-------------------------------------------------------------------------------
 #	SOURCE CODE
 #-------------------------------------------------------------------------------
+
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 # .h files
 list(APPEND HEADER_FILES
@@ -17,6 +19,9 @@ list(APPEND HEADER_FILES
 # .cpp files
 list(APPEND SOURCE_FILES
 src/main.cpp
+src/QDirectoryEdit.cpp
+src/QCompleterKeyPressEventFilter.cpp
+src/mainwindow.h
 )
 
 # on windows, append headers to source so they show up in visual studio
@@ -28,7 +33,7 @@ endif()
 #	PROJECT SETTINGS
 #-------------------------------------------------------------------------------
 
-set(TARGET_NAME cmake-qt-project)
+set(TARGET_NAME qdirectoryedit)
 
 # Use git branch as project name if clones from git
 find_package(Git)
@@ -61,6 +66,7 @@ PROJECT(${PROJECT_NAME})
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTORCC ON)
 set(QT_USE_QTMAIN TRUE)
 
 # Setup the cmake prefix path so Qt can be found. Use the QTDIR variable if defined
@@ -73,33 +79,17 @@ set(QTDIR $ENV{QTDIR} CACHE STRING "Qt install path")
 list(APPEND CMAKE_PREFIX_PATH ${QTDIR})
 
 # Find the necessary Qt5 modules
-find_package(Qt5Core REQUIRED)
-find_package(Qt5Gui REQUIRED)
-find_package(Qt5Widgets REQUIRED)
+find_package(Qt5 COMPONENTS Core Gui Widgets REQUIRED)
 
 # Test for supported Qt version
 find_program(QMAKE_EXECUTABLE NAMES qmake HINTS ${QTDIR} ENV QTDIR PATH_SUFFIXES bin)
 execute_process(COMMAND ${QMAKE_EXECUTABLE} -query QT_VERSION OUTPUT_VARIABLE QT_VERSION)
-if(QT_VERSION LESS QT_MINIMUM_VERSION)
+if(QT_VERSION VERSION_LESS QT_MINIMUM_VERSION)
 	MESSAGE(FATAL_ERROR "Minimum supported Qt version: ${QT_MINIMUM_VERSION}. Installed version: ${QT_VERSION}")
 endif()
 
 # find thread library 
 find_package(Threads REQUIRED)
-
-#-------------------------------------------------------------------------------
-#	RESOURCES
-#-------------------------------------------------------------------------------
-
-#list(APPEND QT_RESOURCES
-#resources/resources.qrc
-#)
-#
-#qt5_add_resources(RESOURCES ${QT_RESOURCES})
-#
-#list(APPEND RESOURCES
-#resources/resources.rc
-#)
 
 #-------------------------------------------------------------------------------
 #	COMPILE FLAGS

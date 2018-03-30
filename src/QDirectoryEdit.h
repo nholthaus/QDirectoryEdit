@@ -1,8 +1,6 @@
 //--------------------------------------------------------------------------------------------------
 // 
-///	@PROJECT	@APPLICATION_NAME@
-/// @BRIEF		application information
-///	@DETAILS	
+//	@project	QDirectoryEdit
 //
 //--------------------------------------------------------------------------------------------------
 //
@@ -16,7 +14,7 @@
 // 
 // The above copyright notice and this permission notice shall be included in all copies or 
 // substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING 
 // BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND 
 // NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
@@ -25,35 +23,68 @@
 //
 //--------------------------------------------------------------------------------------------------
 //
+// Copyright (c) 2018 Nic Holthaus
+// 
+//--------------------------------------------------------------------------------------------------
+//
 // ATTRIBUTION:
-// Parts of this work have been adapted from: 
+//
 //
 //--------------------------------------------------------------------------------------------------
-// 
-// Copyright (c) 2016 Nic Holthaus
-// 
-//--------------------------------------------------------------------------------------------------
 //
-//	XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-//	XXXX																						XXXX
-//	XXXX						WARNING: THIS IS A GENERATED FILE								XXXX
-//	XXXX						ABANDON ALL HOPE YE WHO EDIT HERE								XXXX
-//	XXXX																						XXXX
-//	XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX	
-// 
+/// @file	QDirectoryEdit.h
+/// @brief	An edit widget to select a directory, with browse, tab complete, and validation
+//
 //--------------------------------------------------------------------------------------------------
 
-#ifndef appinfo_h__
-#define appinfo_h__
+#pragma once
+#ifndef QDirectoryEdit_h__
+#define QDirectoryEdit_h__
 
-#include <QString>
+//-------------------------
+//	INCLUDES
+//-------------------------
 
-namespace APPINFO
+#include <QWidget> 
+
+//-------------------------
+//	FORWARD DECLARATIONS
+//-------------------------
+
+class QDirectoryEditPrivate;
+
+//--------------------------------------------------------------------------------------------------
+//	QDirectoryEdit
+//--------------------------------------------------------------------------------------------------
+
+class QDirectoryEdit : public QWidget
 {
-	const QString name("@APPLICATION_NAME@");
-	const QString organization("@APPLICATION_ORGANIZATION@");
-	const QString oranizationDomain("@APPLICATION_ORGANIZATION_DOMAIN@");
-	const QString version("@APPLICATION_VERSION@");
-}
+	Q_OBJECT
 
-#endif // appinfo_h__
+public:
+
+	QDirectoryEdit(QWidget* parent = nullptr);
+	virtual ~QDirectoryEdit();
+	
+signals:
+
+	void directoryChanged(const QString& dir);
+
+public:
+
+	QString directoryPath() const noexcept;
+	bool isEmpty() const noexcept;
+	bool isValid() const noexcept;
+	QString labelText() const noexcept;
+	bool setDirectoryPath(const QString& path) noexcept;
+	void setLabelText(const QString& text) noexcept;
+	
+private:
+
+	Q_DECLARE_PRIVATE(QDirectoryEdit);
+	Q_DISABLE_COPY(QDirectoryEdit);
+	QScopedPointer<QDirectoryEditPrivate> d_ptr;
+
+};
+
+#endif // QDirectoryEdit_h__

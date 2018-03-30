@@ -1,3 +1,8 @@
-# cmake-qt-project
+# QDirectoryEdit
 
-This is a blank template for making a Qt project in cmake
+A Widget to choose a directory, which includes tab completion, validation, and a browse button.
+
+![screenshot](screenshots/QDirectoryEdit.PNG)
+
+You could roll your own, but why bother?
+
