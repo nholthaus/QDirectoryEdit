@@ -104,8 +104,7 @@ QDirectoryEdit::QDirectoryEdit(QWidget* parent /*= nullptr*/)
 	auto appendSlashes = [=]()
 	{
 		QModelIndex fileSystemIndex = d->fileSystemModel->index(d->edit->currentText());
-		QModelIndex index = fileSystemIndex;
-
+		
 		if (d->fileSystemModel->isDir(fileSystemIndex) && fileSystemIndex.isValid())
 			if (!d->edit->currentText().endsWith(d->slash, Qt::CaseInsensitive))
 				d->edit->setCurrentText(d->edit->currentText().append(d->slash));
