@@ -36,7 +36,7 @@ public:
 		layout->addWidget(edit);
 		layout->addWidget(browseButton);
 
-/*		edit->setPlaceholderText("Directory Path...");*/
+		edit->setPlaceholderText("Directory Path...");
 		browseButton->setText("Browse...");
 
 		label->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
@@ -209,7 +209,6 @@ bool QDirectoryEdit::isValid() const noexcept
 	Q_D(const QDirectoryEdit);
 
 	QModelIndex fileSystemIndex = d->fileSystemModel->index(d->edit->currentText());
-	QModelIndex index = fileSystemIndex;
 
 	if (d->fileSystemModel->isDir(fileSystemIndex) && fileSystemIndex.isValid())
 		return true;
@@ -248,7 +247,6 @@ bool QDirectoryEdit::setDirectoryPath(const QString& path) noexcept
 	Q_D(QDirectoryEdit);
 
 	QModelIndex fileSystemIndex = d->fileSystemModel->index(path);
-	QModelIndex index = fileSystemIndex;
 
 	if (d->fileSystemModel->isDir(fileSystemIndex) && fileSystemIndex.isValid())
 	{
@@ -282,7 +280,6 @@ void QDirectoryEdit::setPreviousDirectories(const QStringList& directories) noex
 	for (auto dir : directories)
 	{
 		QModelIndex fileSystemIndex = d->fileSystemModel->index(dir);
-		QModelIndex index = fileSystemIndex;
 
 		if (d->fileSystemModel->isDir(fileSystemIndex) && fileSystemIndex.isValid())
 			d->edit->addItem(dir);
