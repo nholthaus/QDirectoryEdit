@@ -4,6 +4,7 @@
 // 	FUNCTION: QCompleterKeyPressEventFilter (public )
 // --------------------------------------------------------------------------------
 QCompleterKeyPressEventFilter::QCompleterKeyPressEventFilter(QObject *c_watch, Qt::Key key, QObject *parent /*= 0*/)
+: QObject(parent)
 {
     m_watch = c_watch;
     m_key = key;

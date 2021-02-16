@@ -64,8 +64,8 @@ class QDirectoryEdit : public QWidget
 
 public:
 
-	QDirectoryEdit(QWidget* parent = nullptr);
-	virtual ~QDirectoryEdit();
+	explicit QDirectoryEdit(QWidget* parent = nullptr);
+	~QDirectoryEdit() override;
 	
 signals:
 
@@ -73,19 +73,20 @@ signals:
 
 public:
 
-	QString directoryPath() const noexcept;
-	bool isEmpty() const noexcept;
-	bool isValid() const noexcept;
-	QString labelText() const noexcept;
-	QStringList previousDirectories() const noexcept;
+	[[nodiscard]] QString directoryPath() const noexcept;
+	[[nodiscard]] bool isEmpty() const noexcept;
+	[[nodiscard]] bool isValid() const noexcept;
+	[[nodiscard]] QString labelText() const noexcept;
+	[[nodiscard]] QStringList previousDirectories() const noexcept;
+
 	bool setDirectoryPath(const QString& path) noexcept;
 	void setLabelText(const QString& text) noexcept;
 	void setPreviousDirectories(const QStringList& directories) noexcept;
 	
 private:
 
-	Q_DECLARE_PRIVATE(QDirectoryEdit);
-	Q_DISABLE_COPY(QDirectoryEdit);
+	Q_DECLARE_PRIVATE(QDirectoryEdit)
+	Q_DISABLE_COPY(QDirectoryEdit)
 	QScopedPointer<QDirectoryEditPrivate> d_ptr;
 
 };

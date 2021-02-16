@@ -103,6 +103,7 @@ if(MSVC)
 	add_compile_options(/MP)
 elseif(CMAKE_COMPILER_IS_GNUCXX)
 	add_compile_options(-std=c++17)
+	add_compile_options(-Werror -Wall -Wextra -Wpedantic)
 endif(MSVC)
 
 #-------------------------------------------------------------------------------

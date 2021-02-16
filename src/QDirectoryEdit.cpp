@@ -36,7 +36,6 @@ public:
 		layout->addWidget(edit);
 		layout->addWidget(browseButton);
 
-		edit->setPlaceholderText("Directory Path...");
 		browseButton->setText("Browse...");
 
 		label->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
@@ -112,9 +111,9 @@ QDirectoryEdit::QDirectoryEdit(QWidget* parent /*= nullptr*/)
 		complete();
 	};
 
-	connect(d->edit->completer(), QOverload<const QModelIndex&>::of(&QCompleter::activated), [=](QModelIndex index)
+	connect(d->edit->completer(), QOverload<const QModelIndex&>::of(&QCompleter::activated), [=](QModelIndex)
 	{
-		QTimer* timer = new QTimer(this);
+		auto* timer = new QTimer(this);
 		timer->setSingleShot(true);
 		timer->setInterval(10);
 		connect(timer, &QTimer::timeout, appendSlashes);
@@ -138,7 +137,7 @@ QDirectoryEdit::QDirectoryEdit(QWidget* parent /*= nullptr*/)
 		}
 	});
 
-	connect(d->edit, &QComboBox::currentTextChanged, [=](QString text)
+	connect(d->edit, &QComboBox::currentTextChanged, [=](QString)
 	{
 		// change to platform-specific slashes
 		if (d->slash == QChar('/'))
@@ -149,7 +148,7 @@ QDirectoryEdit::QDirectoryEdit(QWidget* parent /*= nullptr*/)
 				d->edit->setCurrentText(d->edit->currentText().replace('/', d->slash));
 	});
 
-	connect(d->edit->completer(), QOverload<const QString&>::of(&QCompleter::activated), [=](QString text)
+	connect(d->edit->completer(), QOverload<const QString&>::of(&QCompleter::activated), [=](QString)
 	{
 		// append slashes to dir
 		appendSlashes();
